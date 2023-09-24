@@ -1,0 +1,172 @@
+---
+title: "FML Assignment 1"
+author: "Praveen Reddy"
+date: "2023-09-24"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#DatasetSource:https://www.kaggle.com/code/venkateshkulkarni11/cricket-analytics-decoding-stories/input
+
+#Importing the dataset to R studio for analysis
+ipl_data <- read.csv(file = 'C:/Users/Praveen/Downloads/ipl_data.csv')
+
+#Displaying first few rows of the data to verify data is successfully imported or not
+head(ipl_data)
+```
+```{r}
+#Displaying last 10 rows of ipl dataset
+tail(ipl_data,10)
+```
+```{r}
+#Fetching the structure of the dataset to know the count of Quantitative (Numerical)
+#and Qualitative (Categorical) variables
+str(ipl_data)
+```
+```{r}
+#Based on the Structure of the IPL Dataset there are total 9 Quantitative(Numerical) Variables and 
+#9 Qualitative(Categorical) variables
+```
+
+```{r}
+#Descriptive Statistices - Exploring the IPL Dataset
+#Structure of the IPL Dataset
+str(ipl_data)
+```
+```{r}
+#Summary of the dataset
+summary(ipl_data)
+```
+
+```{r}
+#Finding the summary of Individual Column of One Numerical and One Categorical Column
+
+#Numerical Variable
+print("Numerical Variable: Total Runs")
+summary(ipl_data$total_runs)
+
+#Categorical Variable
+print("Categorical Variable: Batsman")
+summary(ipl_data$batsman)
+
+
+```
+
+```{r}
+#Finding the Shape of the dataset
+dim(ipl_data)
+#There are toatl 193468 rows and 18 columns
+```
+
+```{r}
+#Finding Number of NA's in the IPL Dataset column wise
+missing_values_column_wise <- colSums(is.na(ipl_data))
+missing_values_column_wise
+```
+
+```{r}
+#From the above column wise fetching of NA's I can see few columns are having many missing rows
+#so as per my research we should not delete if there are many rows that are missing which could
+#lead to loss of information and bowling_team column has only 191 rows so I'm removing 191 rows
+#from the dataset where 191 missing values are found
+```
+
+```{r}
+#Removing missing values from bowling_team and so missing rows from the ipl dataset
+#Storing the updated dataset to ipl_data_modified dataset
+ipl_data_modified <- ipl_data[!is.na(ipl_data$bowling_team), ]
+```
+
+```{r}
+#Finding Number of NA's in the Updated IPL Dataset column wise to check missing values from the
+#bowling_team or not
+missing_values_column_wise <- colSums(is.na(ipl_data_modified))
+missing_values_column_wise
+```
+```{r}
+#Dimensions of IPL Modified Dataset
+dim(ipl_data_modified)
+```
+
+```{r}
+#Arranging ball by ball events of bowling team in the form of table 
+table(ipl_data_modified$bowling_team)
+```
+
+```{r}
+#Displaying the type of bowling_team variable 
+class(ipl_data_modified$bowling_team)
+```
+
+```{r}
+#Transforming Categorical variable "bowling_team" to Numerical variable
+bowling_team_transformation=as.factor(ipl_data_modified$bowling_team)
+class(bowling_team_transformation) #Converted to factor for transformation
+
+```
+
+```{r}
+bowling_team_categorical_to_numerical<-unclass(bowling_team_transformation) 
+#Categorical to Numerical Transformation
+class(bowling_team_categorical_to_numerical)
+#Now displaying the class of transformed variable
+```
+```{r}
+#Cross checking whether transformation of bowling_team variable is successful?
+head(bowling_team_categorical_to_numerical,7)
+```
+```{r}
+#Table Arrangement of transformed variable
+table(bowling_team_categorical_to_numerical)
+```
+
+```{r}
+# Creating a histogram for "Batsman Runs"
+hist(
+  ipl_data_modified$batsman_runs,
+  main = "Distribution of Batsman Runs",
+  xlab = "Batsman Runs",
+  col = "skyblue",  # Set the color of the bars
+  border = "black", # Set the color of the bar borders
+  breaks = 20       # Adjust the number of bins (breaks) as needed
+)
+```
+
+```{r}
+# Scatter Plot
+#Making use of dplyr package 
+library(dplyr)
+
+# Aggregate total runs by over
+total_runs_by_over <- ipl_data_modified %>%
+  group_by(over) %>%
+  summarize(total_runs = sum(total_runs))
+
+# Scatter Plot
+plot(
+  total_runs_by_over$over,
+  total_runs_by_over$total_runs,
+  main = "Total Runs vs Over",
+  xlab = "Over",
+  ylab = "Total Runs",
+  col = "green",  # Set point color to green
+  pch = 20,       # Use filled circles for points
+  cex = 0.7       # Adjust point size
+)
+
+# Add a linear regression line (in red)
+abline(
+  lm(total_runs ~ over, data = total_runs_by_over),
+  col = "red",
+  lwd = 2
+)
+```
+
